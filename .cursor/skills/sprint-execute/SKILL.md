@@ -1,6 +1,6 @@
 ---
 name: sprint-execute
-description: Executes an active game sprint end-to-end: selects the right sprint, implements tasks, verifies acceptance criteria, commits task-sized changes, archives completed sprint reports, and prepares producer review. Use when the producer asks to run or execute an active sprint.
+description: "Executes an active game sprint end-to-end: selects the right sprint, implements tasks, verifies acceptance criteria, commits task-sized changes, archives completed sprint reports, and prepares producer review. Use when the producer asks to run or execute an active sprint."
 ---
 
 # Sprint Execute — AI 自动执行 Sprint
