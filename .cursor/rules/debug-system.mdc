@@ -1,0 +1,50 @@
+---
+description: Debug system conventions for AI-testable game development
+globs: frontend/**/*
+---
+
+# 调试系统约定
+
+## 核心组件
+- `Debug/DebugBus.ts` —— 调试事件总线，与业务 EventEmitter 分离
+- `Debug/GM.ts` —— GM 指令系统，通过 `window.GM` 暴露到浏览器控制台
+
+## 强制要求
+**所有新功能开发时必须同时：**
+1. 注册 DebugBus 调试事件（关键状态变化必须发出事件）
+2. 注册 GM 指令（功能类任务必须提供可编程入口）
+
+## DebugBus 事件格式
+```typescript
+this.debugBus.emit("category", "action", { key: value });
+// 控制台输出：[EVENT] category:action { key: value }
+```
+
+常见 category 命名：
+- `experience` —— Experience 生命周期（initialized 等）
+- `world` —— 世界/场景相关（ready、transition）
+- `player` —— 玩家相关（move、collision、spawn、died）
+- `chat` —— 聊天相关（send、receive）
+- `ui` —— UI 相关（name-entered）
+- `network` —— 网络相关（connect、disconnect、sync）
+- `startup` —— 启动流程（progress、ready、failed）
+- `sim` —— 仿真相关（seed-set、time-scale-changed）
+- `gm` —— GM 指令执行记录
+
+## GM 指令注册格式
+```typescript
+this.gm.register("commandName", "Description of what this does", (arg1, arg2) => {
+    // implementation
+});
+```
+
+## 环境控制
+- 开发模式（`import.meta.env.DEV`）：自动启用
+- 生产模式：默认关闭，通过 `VITE_DEBUG=true` 环境变量启用
+- DebugBus 可按模块细分（如 `PlayerDebug`、`WorldDebug`），避免数据杂乱
+
+## 用途
+调试事件和 GM 指令的目的是让 AI agent 能够：
+1. 通过 Puppeteer 自动化测试游戏功能
+2. 通过事件流验证游戏逻辑正确性（无需看画面）
+3. 通过 GM 指令注入游戏状态进行测试

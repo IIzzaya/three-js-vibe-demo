@@ -1,0 +1,54 @@
+---
+description: Sprint execution workflow for AI-driven game development
+globs: "**/*"
+alwaysApply: true
+---
+
+# Sprint 工作流
+
+## AI 开发模式
+本项目采用 **多制作人并行 AI 驱动 Sprint 工作流**。每位制作人在 `.env` 里配置自己的 `PROJECT_OWNER`，各自驱动一个 active Sprint。AI agent 按 Sprint 自动连续执行任务，人类制作人在 Sprint 完成后统一验收。
+
+## 会话启动
+每次新会话开始开发任务前，**必须**先读取 `docs/STATUS.md` 获取项目当前状态（自动生成，禁止手工编辑）。
+
+## 四个 Skill 构成核心工作流循环
+1. `/discuss-next` —— AI 主动探索下一步方向，新想法落地为 `docs/backlog/ideas/{slug}.md`
+2. `/game-design` —— 游戏设计讨论（制作人有话题要讨论时使用）
+3. `/sprint-review` —— 制作人验收反馈 → 在 `docs/backlog/active/sprint-{slug}.md` 生成下一个 Sprint 任务列表
+4. `/sprint-execute` —— AI 自动执行某个 active Sprint 中的所有任务（Sprint 收尾时自动 rebase + `npm run test:e2e` / `test:smoke` + `npm run status:rebuild` + `git mv` 归档；不自动 push）
+
+## Sprint 执行流程（详见 `/sprint-execute` skill）
+1. 选 Sprint：显式 slug > active 单个自动 > owner 匹配自动 > 多个让用户选
+2. 校验 `.env` 的 `PROJECT_OWNER` + sprint frontmatter
+3. 从 `docs/backlog/active/sprint-{slug}.md` 选取优先级最高的「待开发」任务
+4. 阅读任务关联的设计文档和相关代码
+5. 在任务条目中补充「实现方案」
+6. 编码实现 + 注册 DebugBus 事件 + 注册 GM 指令 + 编写测试
+7. 自检验收（逐项检查 checklist + typecheck + lint + test）
+8. `git fetch origin`（不立即 rebase）
+9. Git commit（每个任务一个 commit，身份 `${owner}-ai`，message 格式 `sprint-{slug} T{n}: ...`）
+10. 更新任务状态为「已完成」，填写完成摘要，累加 frontmatter `points_done`
+11. 继续下一个任务直到 Sprint 清空
+12. **Sprint 收尾**：
+    - `git pull --rebase origin main`（冲突协议：除 `STATUS.md` 外不自动解决，停下问人）
+    - 跑 `npm run test:e2e` / `npm run test:smoke`
+    - 把 sprint 文件扩充成验收报告
+    - 改 frontmatter `status: completed` + `completed: <today>`
+    - `git mv docs/backlog/active/sprint-{slug}.md docs/backlog/completed/`
+    - 跑 `npm run status:rebuild` 重建 `docs/STATUS.md`
+    - `npm run dev` 启动开发服务器供制作人验收
+    - 不自动 push；最终回复提示"当前本地 `main` 已领先远端，等待制作人手动 push"
+
+## 任务格式
+- 点数制量化工作量，Sprint 总容量约 20 点
+- 类型分类：🆕 功能 | 🐛 修复 | ♻️ 重构 | 🎨 美术 | 📝 设计 | ⚡ 优化
+- 状态：🔵 待开发 | 🟡 开发中 | 🟢 已完成 | 🔴 阻塞
+- 任务编号：**Sprint 内部递增** `T1` / `T2` / ...
+- 任务模板参考 `docs/backlog/templates/task-template.md`
+
+## 多制作人协作规则
+- 每位制作人**只动自己的 active sprint**（owner 匹配 `.env`）
+- 共享 hot file（`package.json` / `vite.config.ts` / 共用 utils）改动时，rebase 阶段产生冲突由人工解决；不要自动 resolve
+- `docs/STATUS.md` 永远由 `npm run status:rebuild` 重建，**禁止手工编辑**——rebase 冲突时直接 `git checkout --theirs docs/STATUS.md` + 重建即可
+- 想加项目固定头部（项目愿景等）→ 编辑 `docs/status-header.md`

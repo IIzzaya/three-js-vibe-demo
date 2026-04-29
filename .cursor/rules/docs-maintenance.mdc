@@ -1,0 +1,50 @@
+---
+description: Documentation maintenance rules for docs/ directory
+globs: docs/**/*
+---
+
+# 文档维护规范
+
+## docs/ 目录结构
+```
+docs/
+├── STATUS.md              # 项目全景状态（自动生成，禁止手工编辑）
+├── status-header.md       # （可选）STATUS.md 顶部固定段，由人类编辑
+├── game-design/           # 游戏设计文档
+│   ├── overview.md        # 游戏概念与愿景
+│   ├── mechanics.md       # 玩法系统设计
+│   ├── world.md           # 世界/场景设计
+│   └── characters.md      # 角色/实体设计
+├── art-direction/         # 美术风格指南
+├── technical/
+│   └── adr/               # 架构决策记录（NNN-slug.md）
+├── milestones/            # 阶段目标定义
+└── backlog/               # 看板系统（多制作人并行版）
+    ├── active/            # 进行中的 sprint：每位 owner 一个 sprint-{slug}.md
+    ├── completed/         # 历史 Sprint 报告
+    ├── abandoned/         # 放弃的 sprint
+    ├── ideas/             # 想法池（每个想法一个 .md）
+    └── templates/         # 任务模板
+```
+
+## STATUS.md 维护规则
+- **自动生成**：跑 `npm run status:rebuild` 由 `scripts/build-status.ts` 从所有 sprint frontmatter 重建。**禁止手工编辑** STATUS.md
+- 想加固定头部（项目愿景、当前阶段说明等）→ 编辑 `docs/status-header.md`，下次 rebuild 自动注入
+- 每个 Sprint 收尾时 `/sprint-execute` 会自动跑一次 rebuild
+
+## 设计文档维护规则
+- 讨论产生的设计决策必须即时写入对应文档
+- 设计文档是活文档，随开发迭代持续更新
+
+## Sprint 报告格式
+Sprint 报告存放在 `docs/backlog/completed/sprint-{YYMMDD}-{owner}-{theme}.md`，必须包含：
+1. 完成概览（完成/未完成统计）
+2. 已完成功能清单
+3. 体验指引（制作人如何体验成果）
+4. 已知问题/技术债
+5. 下一步建议
+
+## ADR 命名规范
+- 全部使用 `NNN-slug.md`（无 `adr-` 前缀，避免冗余，因目录本身就是 `adr/`）
+- 编号单调递增，不复用不跳号
+- 新增 ADR 时同步更新 `adr/README.md` 的列表

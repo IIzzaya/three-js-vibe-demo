@@ -1,0 +1,40 @@
+---
+description: Server-side conventions
+globs: server/**/*
+---
+
+# 服务端约定
+
+## 架构
+- Express 提供静态文件（构建后的前端 `dist/`）
+- Socket.IO 共两个命名空间：`/chat`（聊天）+ `/update`（玩家状态同步）
+- 每个命名空间的 handler 独立在 `server/sockets/` 下一个模块
+
+## 类型
+- 共享类型放 `server/types.ts`
+- Socket `userData` 通过 `(socket as any).userData` 附加（Socket.IO 原生不支持自定义字段）
+
+## 配置
+- `server/config.ts` —— 中心化配置，带 env 回退
+- 端口默认 3000，通过 `PORT` env 覆盖
+
+## Socket 事件
+
+### `/chat` 命名空间
+- `setName(name)` —— 设置用户显示名
+- `send-message(message, time)` → broadcasts `received-message(name, message, time)`
+
+### `/update` 命名空间
+- `setID()` → emits `setID(socketId)`
+- `setName(name)` —— 设置玩家名
+- `setAvatar(skin)` → broadcasts `setAvatarSkin(skin, id)`
+- `updatePlayer(payload)` —— 更新 position / quaternion / animation
+- `disconnect` → broadcasts `removePlayer(id)`
+- 服务端每 20ms 广播 `playerData` 数组
+
+## 新增 namespace 的检查项
+新增时：
+1. 在 `server/sockets/` 下建一个模块，导出 `registerXxxNamespace(io)`
+2. 在 `server/index.ts` 注册
+3. 定义类型写入 `server/types.ts`
+4. 若 E2E 要走新命名空间，在 `tests/e2e/PuppeteerHarness.ts` 的 harness 里也注册

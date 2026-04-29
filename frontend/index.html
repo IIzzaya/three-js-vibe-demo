@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>three-js-vibe-demo</title>
+    </head>
+    <body>
+        <!-- Preloader -->
+        <div class="preloader">
+            <div class="preloader-wrapper">
+                <div class="startup-badge">three-js-vibe-demo</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+            <div class="progress-wrapper">
+                <div class="percent preloader-percentage1">0</div>
+                <div class="percent preloader-percentage2">0</div>
+                <div class="percent symbol">%</div>
+            </div>
+            <h1 class="preloader-title fade-in-out">Loading</h1>
+            <div class="description">
+                Initializing scene, character, and networking.
+            </div>
+
+            <!-- Name Entry -->
+            <div class="welcome-title">Enter your name</div>
+            <div class="name-form">
+                <input
+                    type="text"
+                    placeholder="What should we call you?"
+                    id="name-input"
+                    required
+                />
+            </div>
+            <button id="name-input-button">Enter</button>
+        </div>
+
+        <!-- Mobile Controls -->
+        <div class="joystick-area"></div>
+        <div class="control-overlay hidden"></div>
+
+        <!-- Chat Box -->
+        <div class="chat-box">
+            <div class="chat-container"></div>
+            <div class="form">
+                <label for="chat-message-input"></label>
+                <div class="message-input-wrapper hidden">
+                    <input type="text" id="chat-message-input" />
+                    <button id="chat-message-button">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            height="24"
+                            width="24"
+                        >
+                            <path
+                                fill="currentColor"
+                                d="M3.45 17.3V6.55q0-.575.488-.9.487-.325 1.037-.1l12.65 5.35q.65.3.65 1.025 0 .725-.65 1.025L4.975 18.3q-.55.225-1.037-.1-.488-.325-.488-.9Zm1.25-.25 12.1-5.15L4.7 6.75v3.925L9.9 11.9l-5.2 1.225Zm0-5.15V6.75v10.3Z"
+                            />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Experience -->
+        <div class="experience-wrapper">
+            <canvas class="experience-canvas"></canvas>
+        </div>
+
+        <script type="module" src="/main.ts"></script>
+    </body>
+</html>

@@ -1,0 +1,70 @@
+---
+description: Global project conventions
+globs: **/*
+alwaysApply: true
+---
+
+# 编码约定
+
+> 本文件是每次会话都注入的 **可执行编码规则**。
+> 项目全景、架构理解、目录结构见 `AGENTS.md`。
+
+## AI 会话启动
+**每次新会话开始开发任务前，必须先读取 `docs/STATUS.md` 获取项目当前状态。**
+
+## 对话语言
+- **默认使用中文**与制作人对话：所有回复、计划、总结、commit message、文档、代码注释、TODO、澄清提问一律中文
+- 仅在以下情况保留英文：技术术语 / API 名 / 文件路径 / 错误信息原文 / 命令行代码块 / 制作人主动用英文提问时
+
+## Shell 环境
+根据用户操作系统选择对应策略：
+
+- **Windows + PowerShell**：禁止 `&&`（5.x 不支持），用 `;` 分隔或分多次 Shell 调用；每次 shell 会话开始时先执行 UTF-8 编码设置：
+  ```powershell
+  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8
+  ```
+- **macOS / Linux + bash/zsh**：可用 `&&` 连接命令；注意 UTF-8 环境变量 `export LANG=en_US.UTF-8` 以避免乱码
+- **通用**：有依赖关系的多步操作分多次 Shell 调用，比拼一行更可靠
+
+## 语言与类型
+- 所有源代码为 **TypeScript**（`strict: true`）
+- 前端 `frontend/`（DOM + ES2022），后端 `server/`（Node.js + ES2022）
+- 渐进消除 `any`；优先使用 `server/types.ts` 或就近类型文件里的显式 interface
+
+## 路径别名
+- `@experience/*` → `frontend/Experience/*`
+- `@utils/*` → `frontend/Experience/Utils/*`
+- `@world/*` → `frontend/Experience/World/*`
+- `@styles/*` → `frontend/styles/*`
+- `@server/*` → `server/*`
+- import 路径统一使用 `.js` 后缀（TypeScript ESM 约定）
+
+## 代码风格
+- ESLint + Prettier 强制执行。提交前运行 `npm run lint:fix` 和 `npm run format`
+- 4 空格缩进、双引号、尾逗号、分号
+- 无冗余注释。只解释非显然的意图
+
+## Git 约定
+- **自动 commit**：完成代码变更或有意义的文档更新后，AI agent 必须在当前回合结束前 stage + commit。不要等用户催
+- **身份**：`git -c user.name="${owner}-ai" commit -m $msg`，其中 `${owner}` 取自 `.env` 的 `PROJECT_OWNER`
+- **owner 缺失时阻断**：`.env` 没有 `PROJECT_OWNER` → 不要 commit，先告知用户复制 `.env.example` 为 `.env` 并填写 owner（kebab-case，全小写）
+- **读取 owner 示例**：
+  - bash/zsh：`owner=$(grep '^PROJECT_OWNER=' .env | cut -d= -f2 | tr -d '[:space:]')`
+  - PowerShell：`$owner = (Get-Content .env | Select-String '^PROJECT_OWNER=' | ForEach-Object { ($_ -split '=', 2)[1].Trim() })`
+- Commit message 格式：sprint 内任务推荐 **`sprint-{slug} T{n}: {desc}`**；其它情况以动词起头（add / fix / update / refactor / test）
+- 中文描述优先（一致性 + 制作人易读）
+- Husky pre-commit hook 会自动运行 lint-staged。若 hook 修改了文件，stage 后重试
+- 绝不 commit 含密钥的文件（`.env`、credentials 等）
+
+## 测试
+- Vitest：`npm test`（单测）/ `npm run test:smoke` / `npm run test:e2e`
+- 单元测试 `tests/unit/` 镜像源码结构，或 `*.test.ts` 就近放置
+
+## 调试系统
+- 所有新功能**必须**注册 DebugBus 事件 + GM 指令（详见 `.cursor/rules/debug-system.mdc`）
+- 由 `import.meta.env.DEV` 或 `VITE_DEBUG=true` 控制
+
+## 文档
+- `docs/STATUS.md` 是项目全景——每个 Sprint 完成后必须更新
+- 游戏设计 `docs/game-design/`，任务管理 `docs/backlog/`
+- 详见 `.cursor/rules/docs-maintenance.mdc`

@@ -1,0 +1,70 @@
+{
+    "name": "three-js-vibe-demo",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "predev": "node scripts/kill-ports.js",
+        "dev": "concurrently --kill-others --kill-signal SIGKILL \"npm run frontend:dev\" \"npm run server:dev\"",
+        "kill-ports": "node scripts/kill-ports.js",
+        "browser:install": "npx puppeteer browsers install chrome",
+        "frontend:dev": "vite --host",
+        "frontend:build": "vite build",
+        "server:dev": "tsx watch server/index.ts",
+        "server:start": "node --import tsx server/index.ts",
+        "build": "vite build",
+        "start": "npm run server:start",
+        "typecheck": "tsc -b",
+        "lint": "eslint frontend/ server/",
+        "lint:fix": "eslint frontend/ server/ --fix",
+        "format": "prettier --write \"frontend/**/*.ts\" \"server/**/*.ts\"",
+        "format:check": "prettier --check \"frontend/**/*.ts\" \"server/**/*.ts\"",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:smoke": "vitest run --config vitest.smoke.config.ts",
+        "test:e2e": "vitest run --config vitest.e2e.config.ts",
+        "status:rebuild": "tsx scripts/build-status.ts",
+        "prepare": "husky"
+    },
+    "lint-staged": {
+        "*.ts": [
+            "eslint --fix",
+            "prettier --write"
+        ]
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.24.0",
+        "@types/express": "^5.0.2",
+        "@types/node": "^22.14.1",
+        "@types/three": "^0.184.0",
+        "@typescript-eslint/eslint-plugin": "^8.31.0",
+        "@typescript-eslint/parser": "^8.31.0",
+        "concurrently": "^8.2.0",
+        "eslint": "^9.24.0",
+        "eslint-config-prettier": "^10.1.2",
+        "eslint-plugin-prettier": "^5.2.6",
+        "globals": "^16.0.0",
+        "gsap": "^3.12.2",
+        "husky": "^9.1.7",
+        "include-media": "^2.0.0",
+        "jsdom": "^29.0.2",
+        "lint-staged": "^15.5.1",
+        "prettier": "^3.5.3",
+        "puppeteer": "^24.41.0",
+        "sass": "^1.63.6",
+        "typescript": "^5.8.3",
+        "vite": "^4.3.9",
+        "vitest": "^3.1.2"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.3.1",
+        "events": "^3.3.0",
+        "express": "^4.18.2",
+        "nipplejs": "^0.10.1",
+        "socket.io": "^4.7.1",
+        "socket.io-client": "^4.7.1",
+        "three": "^0.154.0",
+        "tsx": "^4.19.4"
+    }
+}

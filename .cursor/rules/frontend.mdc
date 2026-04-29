@@ -1,0 +1,50 @@
+---
+description: Frontend Three.js conventions
+globs: frontend/**/*
+---
+
+# 前端约定
+
+## Three.js 架构
+项目使用一个 **Experience 单例**（`Experience/Experience.ts`），承载 3D 场景、多人同步和聊天骨架。
+
+规则：
+- Experience 是**单例**——不要创建多个实例，通过 `new Experience()` 访问
+- 所有模块从 Experience 单例获取共享状态（scene、camera、resources、debugBus、gm）
+- 生命周期：constructor → setup 方法 → `update()` 每帧经 `requestAnimationFrame` 调用
+
+## 模块结构
+- `Experience/` —— 核心（Experience、Camera、Renderer、Preloader）
+- `Experience/Debug/` —— 调试基建（DebugBus、GM）
+- `Experience/Utils/` —— 工具（Sizes、Time、Resources、Loaders、assets、SeededRng、RunContext、CustomOrbitControls）
+- `Experience/World/` —— 游戏世界（World、WhiteboxScene、Assets/、Player/）
+- `Experience/World/Player/` —— 玩家系统（Player、Avatar、Nametag）
+
+## 资源加载
+- 资源定义在 `Utils/assets.ts` 中的类型化数组
+- `Resources` 类加载所有资源，完成时 emit `"ready"` 事件
+- 资源类型：`glbModel` / `imageTexture` / `cubeTexture` / `videoTexture`
+
+## 白盒场景
+- `WhiteboxScene.ts` —— 白盒地图（网格地面 + 3 参考立方体 + cubemap skybox）
+- 白盒提供多人同步 + 聊天 + Preloader 姓名入口的参考实现
+- 新场景开发可替换 WhiteboxScene，或在 World/ 下新增场景模块
+
+## CustomOrbitControls
+- `Utils/CustomOrbitControls.js` 是**第三方 vendored 文件**——不要转换成 TypeScript
+- 类型声明在 `Utils/CustomOrbitControls.d.ts`
+
+## DOM 交互
+- 用 `Utils/functions/elements.ts` 的 `elements()` helper 做 DOM 查询
+- SCSS 样式放 `frontend/styles/`，按组件拆分文件
+
+## Socket.IO 客户端
+- 两个 socket 连接：`chatSocket`（聊天）+ `updateSocket`（玩家状态）
+- 玩家 position / quaternion / animation 每 20ms 同步一次
+
+## 新功能接入检查项
+- 是否注册了 DebugBus 事件？
+- 是否注册了 GM 指令（功能类任务）？
+- 是否在 `World/World.ts` 的 `update()` 链中添加了 per-frame 调用（如果需要）？
+- 资源是否加到 `Utils/assets.ts`？
+- 是否新增单元测试到 `tests/unit/frontend/`？
